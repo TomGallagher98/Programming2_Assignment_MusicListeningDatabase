@@ -3,6 +3,7 @@ from Login_Access import *
 from Main_Code import *
 from Stat_Windows import *
 from Update_Windows import *
+from Spotify import *
 # Code for the login section
 class LoginPage():
     def __init__(self, login):
@@ -55,6 +56,8 @@ class LoginPage():
         #Takes the entered username and password and runs the check_user command from the Login Access code
         #If there is a match the program opens the main page and stores the username and display name and kills the login page
         if check_user(y,z) == True:
+            uid = get_user_id(y)
+            spotify_scrape(uid)
             root = Tk()
             MainPage(root, x, y)
             login.destroy()

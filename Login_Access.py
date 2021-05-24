@@ -1,5 +1,5 @@
-# Code for Login/Add New User pages to connect with database
-
+# Code for Login/Add New User pages to connect with databased
+from datetime import datetime
 import sqlite3
 
 #checks that there is data in the database
@@ -21,12 +21,12 @@ def check_user(username, password):
         if username == user[0] and password == user[1]:
             return True
 
-
+#adds the user to the database with the entered parameters
 def adduser(fname, lname, uname, pword, spotify, itunes):
     conn = sqlite3.connect('MLDB.db', timeout=5)
     cursorObj = conn.cursor()
     uid = len(cursorObj.execute("select * from user").fetchall()) + 1
-    cursorObj.execute(f"INSERT INTO user VALUES({uid}, '{fname}', '{lname}', '{uname}', '{pword}', '{spotify}', '{itunes}')")
+    cursorObj.execute(f"INSERT INTO user VALUES({uid}, '{fname}', '{lname}', '{uname}', '{pword}', '{spotify}','{datetime.now()}', '{itunes}', '{datetime.now()}')")
     cursorObj.execute("select * from user")
     user = cursorObj.fetchall()
     conn.commit()

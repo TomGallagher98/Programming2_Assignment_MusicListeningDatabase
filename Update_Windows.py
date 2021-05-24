@@ -1,10 +1,6 @@
 from tkinter import *
 from Main_Code import *
 from tkinter import messagebox
-class p_list():
-    def __init__(self):
-        self.songs = []
-        self.length = 0
 
 class song():
     def __init__(self,title, artist, album,t_length,source,date,time,session):
@@ -17,11 +13,12 @@ class song():
         self.time = time
         self.session = session
 
-class Playlist():
+class Playlist(): #creates a GUI but also can store data
     def __init__(self, playlist,user):
         self.master = playlist
         self.user = user
-        self.list = p_list()
+        self.list = [] #songs are first added to the list, then at the end the entire playlist is written into DB
+        self.length = 0 #stores the current length
 
         playlist.title("Add Playlist")
         playlist.geometry("250x275+100+100")
@@ -72,20 +69,24 @@ class Playlist():
         session_entry = Entry(playlist)
         session_entry.grid(row=8, column=1)
 
+        #adds a song to the playlist list when pressed
         add_button = Button(playlist, text='Add', command = lambda:add_songs())
         add_button.grid(row = 9, column = 0)
 
+        #removes the last added song from the playlist list
         undo_button = Button(playlist, text='Undo', command = lambda:undo())
         undo_button.grid(row=9, column=1)
 
+        #writes the entire playlist to the database when pressed
         add_playlist = Button(playlist, text='Add Playlist', command=lambda: add_playlist())
         add_playlist.grid(row=10, column=0, columnspan = 2)
 
+        #shows the user how many songs are currently in the playlist
         length = Label(playlist, text = ' Current length 0')
         length.grid(row = 11, column=0)
 
-        def add_songs():
-            if int(entry1.get()) == self.list.length:
+        def add_songs(): #disables the add song button when the playlist is longer than the user specified
+            if int(entry1.get()) == self.length:
                  add_button['state'] = "disabled"
             else:
                 title = title_entry.get()
@@ -96,33 +97,44 @@ class Playlist():
                 date = date_entry.get()
                 time = time_entry.get()
                 session = session_entry.get()
+                #retrieves all the entries and creates a song class
                 x = song(title,artist,album,t_length,source,date,time,session)
-                self.list.songs.append(x)
-                self.list.length += 1
-                length = Label(playlist, text=f'Current length {self.list.length}')
+                #adds the song to the list and adds one to the length count
+                self.list.append(x)
+                self.length += 1
+                #updates the length label when a song is added
+                length = Label(playlist, text=f'Current length {self.length}')
                 length.grid(row=11, column=0)
         def add_playlist():
-            if self.list.length == int(entry1.get()):
-                for i in self.list.songs:
+            if self.length == int(entry1.get()): #only runs when the playlist length is the specified length
+                for i in self.list:
                     if i.date == '':
                         i.date = None
-
+                        #################ADD FORMATTING CHECK############################
+                        #sets the date and time to None is there is no value entered
                     if i.time == '':
                         i.time = None
+                    #checks that the song is already in the database
                     x = check_song(f'{i.title}',f'{i.artist}',f'{i.album}')
                     if check_song(f'{i.title}',f'{i.artist}',f'{i.album}') is not None:
                         add_play(x,self.user,i.source,i.date,i.time,i.session)
-                        print (i.title,i.album,i.album,i.source,i.date,i.time,i.session)
-                    else:
+                        #adds play if the song is already in database
+                        print (i.title)
+                        # print (i.title,i.album,i.album,i.source,i.date,i.time,i.session)
+                    else:#adds the songs to the data base which automatically adds the play
                         add_song(i.title,i.artist,i.album,i.t_length,'',user)
                         x = check_song(f'{i.title}', f'{i.artist}', f'{i.album}')
+                        #appends the source and session after the song is added
+                        #because it is the first instance the song id can also be used to update the play
                         append_play(x,i.source,i.session)
             else:
+                #displays an error when the length does not match
                 messagebox.showerror('Length Error', f'Error:\n Specified length and current length of playlist do not match\n Please add more songs or change specified track length')
                 print ('no')
-        def undo():
-            del self.list.songs[-1]
-            self.list.length -= 1
-            length = Label(playlist, text=f'Current length {self.list.length}')
-            length.grid(row=11, column=0)
-            add_button['state'] = "active"
+        def undo(): #allows the user to remove songs from the song list
+            if self.length >= 1: #only works if there are currently songs in the list
+                del self.list[-1] #removes the last added entry
+                self.length -= 1 #removes one from the current length
+                length = Label(playlist, text=f'Current length {self.length}')
+                length.grid(row=11, column=0)
+                add_button['state'] = "active" #activates the add button if it was previously disabled

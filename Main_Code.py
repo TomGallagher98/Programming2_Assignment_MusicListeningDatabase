@@ -76,108 +76,98 @@ def add_play(sid,uid,source=None,date=None,time=None,session=None):
     #source and session can be left blank
     conn = sqlite3.connect('MLDB.db', timeout=5)
     cursorObj = conn.cursor()
-    p_id = len(cursorObj.execute("select * from Plays").fetchall()) + 1
+    p_id = len(cursorObj.execute("select * from Plays").fetchall()) + 1 #adds a unique play id
     cursorObj.execute(
         f"INSERT INTO Plays VALUES({p_id}, '{sid}', '{source}', '{date}', '{time}', '{session}','{uid}')")
-    cursorObj.execute("select * from Plays")
-    user = cursorObj.fetchall()
     conn.commit()
     conn.close()
-    print(user)
 
-def append_play(sid,source,session):
+def append_play(sid,source,session): #allows the user to add the source and session to a play
     conn = sqlite3.connect('MLDB.db', timeout=5)
     cursorObj = conn.cursor()
     cursorObj.execute(
         f"UPDATE Plays Set source = '{source}',session = '{session}' where Song = {sid}")
-    cursorObj.execute("select * from Plays")
-    user = cursorObj.fetchall()
     conn.commit()
     conn.close()
-    print(user)
 
-def add_song(Title,Artist,Album,Length,Genre,User_Id):
+def add_song(Title,Artist,Album,Length,Genre,User_Id, date = None, time = None, source = None):
     #if the song is already in the database it is added automatically to plays
     if check_song(Title,Artist,Album) is not None:
         sid = check_song(Title,Artist,Album)
-        add_play(sid, User_Id)
+        add_play(sid, User_Id, source=source,date=date, time=time)
     else:
         #the song is written into the songs table before being added into the plays table
-        #ensures the song is given a unique id for the database
-        conn = sqlite3.connect('MLDB.db', timeout=5)
+        conn = sqlite3.connect('MLDB.db', timeout=10)
         cursorObj = conn.cursor()
-        sid = len(cursorObj.execute("select * from Song").fetchall()) + 1
+        sid = len(cursorObj.execute("select * from Song").fetchall()) + 1 #ensures the song is given a unique id for the database
         cursorObj.execute(
-            f"INSERT INTO Song VALUES({sid}, '{Title}', '{Artist}', '{Album}', '{Length}', '{Genre}')")
-        cursorObj.execute("select * from Song")
-        user = cursorObj.fetchall()
+            f'INSERT INTO Song VALUES({sid}, "{Title}", "{Artist}", "{Album}", "{Length}", "{Genre}")')
         conn.commit()
         conn.close()
-        print(user)
-        add_play(sid, User_Id)
+        add_play(sid, User_Id, source=source,date=date, time=time)
 
 def music_stats(uid, artist = None, album = None):
-    if artist is not None:
+    #adding an artist or album will restrict the code to be implemented on only the artist or album
+    if artist is not None: #when there is an artist the code is run on the artist
         conn = sqlite3.connect('MLDB.db', timeout=5)
         cursorObj = conn.cursor()
-        cursorObj.execute(
+        cursorObj.execute( #returns the song name, its total plays and the the artist, the results are sorted descending by total plays
             f"select Song.Title, count(*), Song.Artist as c from Song join Plays on Song.id = Plays.Song where Plays.User_id = {uid} and Song.Artist ='{artist}' group by Song.id order by c desc, Song.Length desc")
         user = cursorObj.fetchall()
         conn.commit()
         conn.close()
-        return user[0][0]
-    if album is not None:
+        return user[0][0] #returns only the top result, which is the result with the most plays
+    if album is not None: #when there is an album the code is run on the album
         conn = sqlite3.connect('MLDB.db', timeout=5)
         cursorObj = conn.cursor()
-        cursorObj.execute(
+        cursorObj.execute( #returns the song name, its total plays and the album, the results are sorted descending by total plays
             f"select Song.Title, count(*) as c , Song.Album from Song join Plays on Song.id = Plays.Song where Plays.User_id = {uid} and Song.Album ='{album}' group by Song.id order by c desc, Song.Length desc")
         user = cursorObj.fetchall()
         conn.commit()
         conn.close()
-        return user[0][0]
-    else:
+        return user[0][0] #returns only the top result, which is the result with the most plays
+    else: #base code which is used on the users entire play history
         conn = sqlite3.connect('MLDB.db', timeout=5)
         cursorObj = conn.cursor()
-        cursorObj.execute(
+        cursorObj.execute( #returns the song name, its total plays and the artist, the results are sorted descending by total plays
             f"select Song.Title, count(*) as c, Song.Artist from Song join Plays on Song.id = Plays.Song where Plays.User_id = {uid} group by Song.id order by c desc")#, Song.Length desc")
         user = cursorObj.fetchall()
         conn.commit()
         conn.close()
-        print (user)
-        return user[0]
+        return user[0] #returns only the top result, which is the result with the most plays
 
-def artist_stats(uid):
+def artist_stats(uid): #finds the most played artist
     conn = sqlite3.connect('MLDB.db', timeout=5)
     cursorObj = conn.cursor()
-    cursorObj.execute(
+    cursorObj.execute(#returns the artist and their total playsthe results are sorted descending by total plays
         f"select count(*) as c, Song.Artist as a from Song join Plays on Song.id = Plays.Song where Plays.User_id = {uid} group by a order by c desc")
     artist = cursorObj.fetchall()
     conn.commit()
     conn.close()
     print(artist)
     name = artist[0][1]
-    times = get_artist_time(uid,name)
-    song = music_stats(uid, artist = name)
+    times = get_artist_time(uid,name) #returns the total time spent listening to the artist
+    song = music_stats(uid, artist = name) #returns the arists most played song
     return (name, times, song)
 
-def album_stats(uid):
+def album_stats(uid): #finds the most played album (by individual track plays)
     conn = sqlite3.connect('MLDB.db', timeout=5)
     cursorObj = conn.cursor()
-    cursorObj.execute(
+    cursorObj.execute( #returns the ablum name, its total plays and the artist the results are sorted descending by total plays
         f"select count(*) as c, Song.Album as a, Song.Artist from Song join Plays on Song.id = Plays.Song where Plays.User_id = {uid} group by a order by c desc")
     album = cursorObj.fetchall()
     conn.commit()
     album_name = album[0][1]
     artist = album[0][2]
-    song = music_stats(uid, album = album_name)
+    song = music_stats(uid, album = album_name) #returns the most played song from the album
     conn.close()
     return (album_name,artist,song)
 
-def source_stats(uid):
+def source_stats(uid): #finds the most used source of music
     conn = sqlite3.connect('MLDB.db', timeout=5)
     cursorObj = conn.cursor()
     cursorObj.execute(
-        f"select count(*) as c, Source from Plays group by Source order by c desc")
+        f"select count(*) as c, Source from Plays where User_id = {uid} group by Source order by c desc")
     source = cursorObj.fetchall()
     conn.commit()
     source_type = source[0][1]
@@ -186,24 +176,24 @@ def source_stats(uid):
         f"select count(*) as c, Song.Title from Song join Plays on Song.id = Plays.Song where Plays.Source like '{source_type}' group by Song.id order by c desc")
     song = cursorObj.fetchall()
     conn.commit()
-    song_title = song[0][1]
+    song_title = song[0][1]  #returns the most listened to song on the source
     conn.close()
     return (source_type, song_title)
 
-def session_stats(uid):
+def session_stats(uid): #finds the most frequent session
     conn = sqlite3.connect('MLDB.db', timeout=5)
     cursorObj = conn.cursor()
     cursorObj.execute(
-        f"select count(*) as c, Session from Plays group by Session order by c desc")
+        f"select count(*) as c, Session from Plays Where User_id = {uid} and Session not like 'None' group by Session order by c desc")
     session = cursorObj.fetchall()
     conn.commit()
     session_type = session[0][1]
     cursorObj = conn.cursor()
-    cursorObj.execute(
+    cursorObj.execute( #finds the most frequently listened to song during the session type
         f"select count(*) as c, Song.Title from Song join Plays on Song.id = Plays.Song where Plays.Session like '{session_type}' group by Song.id order by c desc")
     song = cursorObj.fetchall()
     conn.commit()
-    song_title = song[0][1]
+    song_title = song[0][1] #returns the song name
     conn.close()
     return (session_type, song_title)
 

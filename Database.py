@@ -9,7 +9,9 @@ import sqlite3
 #                   username UNIQUE,
 #                   password text,
 #                   Spotify text,
-#                   iTunes text)""")
+#                   Spotify_Last_Update text,
+#                   iTunes text,
+#                   iTunes_Last_Update text)""")
 # conn.commit()
 
 conn= sqlite3.connect('MLDB.db')
