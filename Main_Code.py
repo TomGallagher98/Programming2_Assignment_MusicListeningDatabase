@@ -65,7 +65,7 @@ def check_song(title, artist, album): #used by the "ADD_SONG" command, to ensure
             #returns the songs id so that it can be added into the Plays table
 
 
-def add_play(sid,uid,source=None,date=None,time=None,session=None):
+def add_play(sid,uid,source=None,date=None,time=None,session=None, itunes_Base_Plays=None):
     #adds a date and time if they are left blank when entering a play, so that date and time can be used in later code
     if date is None:
         today = datetime.now()
@@ -78,7 +78,7 @@ def add_play(sid,uid,source=None,date=None,time=None,session=None):
     cursorObj = conn.cursor()
     p_id = len(cursorObj.execute("select * from Plays").fetchall()) + 1 #adds a unique play id
     cursorObj.execute(
-        f"INSERT INTO Plays VALUES({p_id}, '{sid}', '{source}', '{date}', '{time}', '{session}','{uid}')")
+        f"INSERT INTO Plays VALUES({p_id}, '{sid}', '{source}', '{date}', '{time}', '{session}','{uid}', '{itunes_Base_Plays}')")
     conn.commit()
     conn.close()
 
@@ -90,11 +90,11 @@ def append_play(sid,source,session): #allows the user to add the source and sess
     conn.commit()
     conn.close()
 
-def add_song(Title,Artist,Album,Length,Genre,User_Id, date = None, time = None, source = None):
+def add_song(Title,Artist,Album,Length,Genre,User_Id, date = None, time = None, source = None, itunes_Base_Plays = None):
     #if the song is already in the database it is added automatically to plays
     if check_song(Title,Artist,Album) is not None:
         sid = check_song(Title,Artist,Album)
-        add_play(sid, User_Id, source=source,date=date, time=time)
+        add_play(sid, User_Id, source=source,date=date, time=time,itunes_Base_Plays=itunes_Base_Plays)
     else:
         #the song is written into the songs table before being added into the plays table
         conn = sqlite3.connect('MLDB.db', timeout=10)
@@ -104,7 +104,7 @@ def add_song(Title,Artist,Album,Length,Genre,User_Id, date = None, time = None, 
             f'INSERT INTO Song VALUES({sid}, "{Title}", "{Artist}", "{Album}", "{Length}", "{Genre}")')
         conn.commit()
         conn.close()
-        add_play(sid, User_Id, source=source,date=date, time=time)
+        add_play(sid, User_Id, source=source,date=date, time=time,itunes_Base_Plays=itunes_Base_Plays)
 
 def music_stats(uid, artist = None, album = None):
     #adding an artist or album will restrict the code to be implemented on only the artist or album
@@ -197,5 +197,10 @@ def session_stats(uid): #finds the most frequent session
     conn.close()
     return (session_type, song_title)
 
-
+#Test Code
+#Get user ID
+#Secondize
+#Check Song
+#Add Play
+#Add Song
 

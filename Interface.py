@@ -4,6 +4,8 @@ from Main_Code import *
 from Stat_Windows import *
 from Update_Windows import *
 from Spotify import *
+from iTunes import *
+from Database import create_database
 # Code for the login section
 class LoginPage():
     def __init__(self, login):
@@ -56,6 +58,8 @@ class LoginPage():
         #Takes the entered username and password and runs the check_user command from the Login Access code
         #If there is a match the program opens the main page and stores the username and display name and kills the login page
         if check_user(y,z) == True:
+            label3 = Label(login, text="Logging In \n Please Wait")
+            label3.grid(row=2, column=3)
             uid = get_user_id(y)
             spotify_scrape(uid)
             root = Tk()
@@ -149,7 +153,7 @@ class MainPage():
         self.user_id = get_user_id(username)
 
         main.title("Main Page")
-        main.geometry("400x275+100+100")
+        main.geometry("400x300+100+100")
 
 
         #Headings Code ADD TEXT FORMATTING
@@ -174,7 +178,7 @@ class MainPage():
         Music_Stats = Button(main, text="Stats", command = lambda:self.open_stats_window('music'))
         Music_Stats.grid(row=4, column=2,pady=(5,5))
 
-        Music_Update = Button(main, text="Update")
+        Music_Update = Button(main, text="Update", command=lambda: self.open_update_window('song'))
         Music_Update.grid(row=4, column=3,pady=(5,5))
 
         #Artist Interactions
@@ -184,7 +188,7 @@ class MainPage():
         Artist_Stats = Button(main, text="Stats", command = lambda:self.open_stats_window('artist'))
         Artist_Stats.grid(row=5, column=2)
 
-        Artist_Update = Button(main, text="Update")
+        Artist_Update = Button(main, text="Update", command=lambda: self.open_update_window('artist'))
         Artist_Update.grid(row=5, column=3)
 
         #Album interactions
@@ -194,7 +198,7 @@ class MainPage():
         Album_Stats = Button(main, text="Stats", command = lambda:self.open_stats_window('album'))
         Album_Stats.grid(row=6, column=2)
 
-        Album_Update = Button(main, text="Update")
+        Album_Update = Button(main, text="Update", command=lambda: self.open_update_window('album'))
         Album_Update.grid(row=6, column=3)
 
         #Source (Spotify, itunes, other) interactions
@@ -204,7 +208,7 @@ class MainPage():
         Source_Stats = Button(main, text="Stats", command = lambda:self.open_stats_window('source'))
         Source_Stats.grid(row=7, column=2)
 
-        Source_Update = Button(main, text="Update")
+        Source_Update = Button(main, text="Update", command=lambda: self.open_update_window('source'))
         Source_Update.grid(row=7, column=3)
 
         #Session (Study, Party, Relaxing etc) Code
@@ -214,11 +218,14 @@ class MainPage():
         Session_Stats = Button(main, text="Stats", command = lambda:self.open_stats_window('session'))
         Session_Stats.grid(row=8, column=2)
 
-        Session_Update = Button(main, text="Update")
+        Session_Update = Button(main, text="Update", command=lambda: self.open_update_window('session'))
         Session_Update.grid(row=8, column=3)
 
         Add_Playlist = Button(main, text="Add Playlist", command = lambda:self.open_update_window('playlist'))
         Add_Playlist.grid(row=9, column=2, columnspan = 2,pady=(5,5))
+
+        Add_iTunes = Button(main, text="Update iTunes", command=lambda: self.open_update_window('iTunes'))
+        Add_iTunes.grid(row=10, column=2, columnspan=2, pady=(5, 5))
 
     def open_stats_window(self, type):
         if type == 'music':
@@ -262,7 +269,31 @@ class MainPage():
             root = Tk()
             Playlist(root,self.user_id)
 
+        if type == 'iTunes':
+            root = Tk()
+            iTunes(root,self.user_id)
+        if type =='song':
+            root = Tk()
+            Song_Update(root,self.user_id)
+        if type =='artist':
+            root = Tk()
+            Artist_Update(root,self.user_id)
+        if type =='album':
+            root = Tk()
+            Album_Update(root,self.user_id)
+        if type =='source':
+            root = Tk()
+            Source_Update(root,self.user_id)
+        if type =='session':
+            root = Tk()
+            Session_Update(root,self.user_id)
 
+try:
+    create_database()
+    print ("Created")
+except:
+    sqlite3.OperationalError
+    print("Already Exists")
 
 root = Tk()
 LoginPage(root)

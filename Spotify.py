@@ -1,6 +1,6 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from Main_Code import *
+from Main_Code import add_song
 import sqlite3
 from datetime import datetime
 from dateutil import tz
@@ -107,9 +107,9 @@ def spotify_scrape(uid):
             for t in range(0, len(date_time)):
                 # loop keeps running if the values are the same
                 if count < 5: #as soon as one value is greater the code will stop comparing the rest of the values
-                    if latest[t] < date_time[t]:
+                    if int(latest[t]) < int(date_time[t]):
                         count += 5 #if any of the values are greater 5 is added to the count
-                    elif latest[t] > date_time[t]:
+                    elif int(latest[t]) > int(date_time[t]):
                         break #if any of the values are smaller breaks the loop
                     #if a value is the same then the loop compares the next values in the list
 
@@ -132,3 +132,10 @@ def spotify_scrape(uid):
 
 
     add_songs(spotify_list)
+
+#Test Code
+#Get songs
+#Compare them to a set date
+#Check time change function
+#Check date change function
+#Return in format they will be written in

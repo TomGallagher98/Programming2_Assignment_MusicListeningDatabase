@@ -1,7 +1,7 @@
 from tkinter import *
 from Main_Code import *
 from tkinter import messagebox
-
+from iTunes import *
 class song():
     def __init__(self,title, artist, album,t_length,source,date,time,session):
         self.title = title
@@ -138,3 +138,224 @@ class Playlist(): #creates a GUI but also can store data
                 length = Label(playlist, text=f'Current length {self.length}')
                 length.grid(row=11, column=0)
                 add_button['state'] = "active" #activates the add button if it was previously disabled
+
+class iTunes(): #creates a GUI but also can store data
+    def __init__(self,iTunes, user):
+        self.master = iTunes
+        self.user = user
+
+        iTunes.title("Add iTunes")
+        iTunes.geometry("250x275+100+100")
+
+        label1 = Label(iTunes, text='Update Song List from iTunes')
+        label1.grid(row=1, column=1)
+
+        Add_iTunes = Button(iTunes, text="Update iTunes", command=lambda: [run_itunes_scrape(self.user), iTunes.destroy()])
+        Add_iTunes.grid(row=4, columnspan=2)
+
+        # def run_itunes(uid):
+class Song_Update():
+    def __init__(self, song, user):
+        self.master = song
+        self.user = user
+
+        song.title("Update Song")
+        song.geometry("250x275+100+100")
+
+        label1 = Label(song, text='Update Song Name')
+        label1.grid(row=1, column=1)
+
+        Old = Label(song, text='Old Title')
+        Old.grid(row=2, column=0)
+        Old_entry = Entry(song)
+        Old_entry.grid(row=2, column=1)
+
+        New = Label(song, text='Updated Title')
+        New.grid(row=3, column=0)
+        New_entry = Entry(song)
+        New_entry.grid(row=3, column=1)
+
+        album = Label(song, text='Album')
+        album.grid(row=4, column=0)
+        album_entry = Entry(song)
+        album_entry.grid(row=4, column=1)
+
+        Write = Button(song, text="Update Song Title", command=lambda: write_updates(self.user))
+        Write.grid(row=5, columnspan=2)
+
+        def write_updates(user):
+            old = Old_entry.get()
+            new = New_entry.get()
+            album = album_entry.get()
+            print([old,new, album])
+            conn = sqlite3.connect('MLDB.db', timeout=5)
+            cursorObj = conn.cursor()
+            cursorObj.execute(f"UPDATE Song set Title = '{new}' where Title = '{old}' and album = '{album}'")
+            session = cursorObj.fetchall()
+            conn.commit()
+            print (session)
+
+class Artist_Update():
+    def __init__(self, artist, user):
+        self.master = artist
+        self.user = user
+
+        artist.title("Update Artist")
+        artist.geometry("250x275+100+100")
+
+        label1 = Label(artist, text='Update Artist Name')
+        label1.grid(row=1, column=1)
+
+        Old = Label(artist, text='Old Name')
+        Old.grid(row=2, column=0)
+        Old_entry = Entry(artist)
+        Old_entry.grid(row=2, column=1)
+
+        New = Label(artist, text='Updated Name')
+        New.grid(row=3, column=0)
+        New_entry = Entry(artist)
+        New_entry.grid(row=3, column=1)
+
+        Write = Button(artist, text="Update Artist Name", command=lambda: write_updates(self.user))
+        Write.grid(row=4, columnspan=2)
+
+        def write_updates(user):
+            old = Old_entry.get()
+            new = New_entry.get()
+            print([old,new, user])
+            conn = sqlite3.connect('MLDB.db', timeout=5)
+            cursorObj = conn.cursor()
+            cursorObj.execute(f"UPDATE Song set Artist = '{new}' where artist = '{old}'")
+            session = cursorObj.fetchall()
+            conn.commit()
+            print (session)
+
+class Album_Update():
+    def __init__(self, album, user):
+        self.master = album
+        self.user = user
+
+        album.title("Update Artist")
+        album.geometry("250x275+100+100")
+
+        label1 = Label(album, text='Update Album Title')
+        label1.grid(row=1, column=1)
+
+        Old = Label(album, text='Old Title')
+        Old.grid(row=2, column=0)
+        Old_entry = Entry(album)
+        Old_entry.grid(row=2, column=1)
+
+        New = Label(album, text='Updated Title')
+        New.grid(row=3, column=0)
+        New_entry = Entry(album)
+        New_entry.grid(row=3, column=1)
+
+        Write = Button(album, text="Update Album Name", command=lambda: write_updates(self.user))
+        Write.grid(row=4, columnspan=2)
+
+        def write_updates(user):
+            old = Old_entry.get()
+            new = New_entry.get()
+            print([old, new, user])
+            conn = sqlite3.connect('MLDB.db', timeout=5)
+            cursorObj = conn.cursor()
+            cursorObj.execute(f"UPDATE Song set Album = '{new}' where Album = '{old}'")
+            session = cursorObj.fetchall()
+            conn.commit()
+            print(session)
+
+class Source_Update():
+    def __init__(self, source, user):
+        self.master = source
+        self.user = user
+
+        source.title("Update Source")
+        source.geometry("250x275+100+100")
+
+        label1 = Label(source, text='Update Source')
+        label1.grid(row=1, column=1)
+
+        source_type = Label(source, text='Source')
+        source_type.grid(row=2, column=0)
+        source_type_entry = Entry(source)
+        source_type_entry.grid(row=2, column=1)
+
+        time_start = Label(source, text='Start Time')
+        time_start.grid(row=3, column=0)
+        time_start_entry = Entry(source)
+        time_start_entry.grid(row=3, column=1)
+
+        time_end = Label(source, text='End Time')
+        time_end.grid(row=4, column=0)
+        time_end_entry = Entry(source)
+        time_end_entry.grid(row=4, column=1)
+
+        date = Label(source, text='Date')
+        date.grid(row=5, column=0)
+        date_entry = Entry(source)
+        date_entry.grid(row=5, column=1)
+
+        Write = Button(source, text="Update Source", command=lambda: write_updates(self.user))
+        Write.grid(row=6, columnspan=2)
+
+        def write_updates(user):
+            source_type = source_type_entry.get()
+            date = date_entry.get()
+            start = time_start_entry.get()
+            time_end = time_end_entry.get()
+            print([date, start, time_end, source_type])
+            conn = sqlite3.connect('MLDB.db', timeout=5)
+            cursorObj = conn.cursor()
+            cursorObj.execute(f"UPDATE Plays set Source = '{source_type}' where User = '{user}' and Date = '{date}' and Time BETWEEN '{start}' and '{time_end}'")
+            session = cursorObj.fetchall()
+            conn.commit()
+            print(session)
+
+class Session_Update():
+    def __init__(self, session, user):
+        self.master = session
+        self.user = user
+
+        session.title("Add Session")
+        session.geometry("250x275+100+100")
+
+        label1 = Label(session, text='Add Session')
+        label1.grid(row=1, column=1)
+
+        session_type = Label(session, text='Session Type')
+        session_type.grid(row=2, column=0)
+        session_type_entry = Entry(session)
+        session_type_entry.grid(row=2, column=1)
+
+        time_start = Label(session, text='Start Time')
+        time_start.grid(row=3, column=0)
+        time_start_entry = Entry(session)
+        time_start_entry.grid(row=3, column=1)
+
+        time_end = Label(session, text='End Time')
+        time_end.grid(row=4, column=0)
+        time_end_entry = Entry(session)
+        time_end_entry.grid(row=4, column=1)
+
+        date = Label(session, text='Date')
+        date.grid(row=5, column=0)
+        date_entry = Entry(session)
+        date_entry.grid(row=5, column=1)
+
+        Write = Button(session, text="Add Session", command=lambda: write_updates(self.user))
+        Write.grid(row=6, columnspan=2)
+
+        def write_updates(user):
+            session_type = session_type_entry.get()
+            date = date_entry.get()
+            start = time_start_entry.get()
+            time_end = time_end_entry.get()
+            print([date, start, time_end, session_type])
+            conn = sqlite3.connect('MLDB.db', timeout=5)
+            cursorObj = conn.cursor()
+            cursorObj.execute(
+                f"UPDATE Plays set Session = '{session_type}' where User_ID = {user} and Date = '{date}' and Time BETWEEN '{start}' and '{time_end}'")
+            session = cursorObj.fetchall()
+            conn.commit()
+            print(session)
