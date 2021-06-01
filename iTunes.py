@@ -1,10 +1,9 @@
-
+##Run The Program Through The Interface File
 from Main_Code import add_song
 import sqlite3
 from datetime import datetime
 
 def run_itunes_scrape(user):
-    print (user)
     uid = user
     iTunes_music = []
     def get_latest_itunes(uid):  # gets the current users last spotify update day/time
@@ -24,7 +23,6 @@ def run_itunes_scrape(user):
             new_date_time.append(i)
         return (new_date_time)
         # new_date_time list is also in Year Month Day Hour Minute
-    print(get_latest_itunes(2))
     def join_date_time(d, t):  # creates a list of each date and time value so they can be compared
         new = []
         d1 = d.split('/')  # splits date at every / divisor
@@ -56,84 +54,77 @@ def run_itunes_scrape(user):
                     break
         if count == 5:
             return (date_time)
-    #first need to export list of songs to a text file, I could find no other way to read the data
-    #when exported the songs must be in order of last play date/time
-    #opens the text file to read, the file is written in UTF 16 so needs to be specified
-    with open("Music.txt", mode='r', encoding='utf-16') as music:
-        Last_Update = get_latest_itunes(2)
-        print (Last_Update)
+    # first need to export list of songs to a text file, I could find no other way to read the data
+    # when exported the songs should be in order of last play date/time
+    # opens the text file to read, the file is written in UTF 16 so needs to be specified
+    def get_file(uid): # finds the users iTunes file name
+        conn = sqlite3.connect('MLDB.db')
+        cursorObj = conn.cursor()
+        cursorObj.execute(f'select iTunes from user where id = {uid} ')
+        iTunes_file = cursorObj.fetchall()[0]
+        return iTunes_file[0]
+    itunes_file = get_file(uid)
+    with open(itunes_file, mode='r', encoding='utf-16') as music:
+        Last_Update = get_latest_itunes(uid)
         head = []
         for x in range(500):
             i = next(music).split('\t')
-
             if i[22] == 'Last Played':
-                pass #skips the heading element in the file
+                pass  # skips the heading element in the file
             elif check_last_update(Last_Update, i[22]) == None:
-                break  #breaks the loop. This also stops the program from needing to sort through the entire song list
-            else: #appends the song to the Music List
+                break  # breaks the loop. This also stops the program from needing to sort through the entire song list
+            else:  # appends the song to the Music List
                 iTunes_music.insert(0,[i[0],i[1],i[3],i[5],i[7],i[21],i[22]])
                 head.append(i[22])
-        for i in iTunes_music:
-            print(i)
-        print (len(iTunes_music))
 
-    def find_base_plays(song, uid):
+    def find_base_plays(song, uid):  # Finds base plays of a song
         conn = sqlite3.connect('MLDB.db')
         cursorObj = conn.cursor()
         cursorObj.execute(f'select p.itunes_Base_Plays from Plays p join Song s on p.Song = s.id where p.User_ID = {uid} and s.Title = "{song}" and p.itunes_Base_Plays != "None"')
         Base = cursorObj.fetchall()
-        if Base == []:
+        if Base == []: # sets the base to 0 if there is no previous instance
             Base= (0,)
         else:
             Base = Base[0]
-        cursorObj = conn.cursor()
+        cursorObj = conn.cursor()  # finds every instance of the song in the database where the source is itunes
         cursorObj.execute(f'select count(*) from Plays p join Song s on p.Song = s.id where p.User_ID = {uid} and s.Title = "{song}" and p.Source = "iTunes"')
-
         Inst = cursorObj.fetchall()[0]
 
         return Base[0],Inst[0]
 
     def write_to_db(songs):
-        count = 0
-        for song in songs:
-            count = 0
-            base = find_base_plays(song[0],2)
-            print (base)
+        for song in songs:  # iterates through the songs to be added list
+            base = find_base_plays(song[0],uid)  # returns the base plays for each song
+            # standardises the time from the file into hh:mm
             min = int(song[4])//60
             sec = int(song[4])-(min*60)
             length = str(min) + ':' + str(sec)
             dt = song[-1].split(' ')
-            date = dt[0]
+            date = dt[0]  # the date is already in the standardized format
             time = dt[1]
-            if dt[2] == 'PM':
+            if dt[2] == 'PM': # adds 12 hours when the time is in 12H time and after 12 pm
                 x = (time.split(':'))
                 y = int(x[0])
-                y += 12
+                if y != 12:
+                    y += 12
                 x[0] = str(y)
                 time = ':'.join(x)
-            if base[0] == 0:
-                print (song[0],song[1],song[2],length,song[3],2,date,time,'iTunes',song[5])
+            if base[0] == 0:  # only adds the song once if the itunes base is 0, as it is the first play
                 add_song(song[0], song[1], song[2], length, song[3], 2, date, time, 'iTunes', song[5])
-            else:
+            else:  # calculates the difference between the current itunes plays and base itunes plays
+                # adds the song as many times as the calculated difference is
                 plays = int(song[5]) - (int(base[0])+int(base[1])-1)
                 for i in range (0,plays):
-                    print(song[0], song[1], song[2], length, song[3], 2, date, time, 'iTunes')
                     add_song(song[0],song[1],song[2],length,song[3],2,date,time,'iTunes')
 
-
+        # updates the itunes last update if there were any songs to update
         if len(songs) > 0:
             last_update = datetime.now()
             conn = sqlite3.connect('MLDB.db', timeout=5)
             cursorObj = conn.cursor()
             cursorObj.execute(
                 f"UPDATE User set iTunes_Last_Update = '{last_update}' where id = {uid}")
-            session = cursorObj.fetchall()
             conn.commit()
 
     write_to_db(iTunes_music)
 
-#Test Code
-#File Read get first 10 lines
-#Compare Dates
-#Get Lines from after date (set latest date)
-#Return files in format they will be written to database in

@@ -1,3 +1,4 @@
+##Run The Program Through The Interface File
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from Main_Code import add_song
@@ -17,6 +18,7 @@ def spotify_scrape(uid):
 
     # user = sp.user('1231448443')
     # print(user)
+    user = sp.user('0')
     spotify_list = [] #the recently played songs will be appended to this list
     songs = sp.current_user_recently_played(limit=50) #triggers the spotipy command to read the users recently played tracks
     for i, song in enumerate(songs['items']): #enumerates the song list

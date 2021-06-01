@@ -1,7 +1,9 @@
-from tkinter import *
+##Run The Program Through The Interface File
 from Main_Code import *
 from tkinter import messagebox
 from iTunes import *
+
+
 class song():
     def __init__(self,title, artist, album,t_length,source,date,time,session):
         self.title = title
@@ -13,12 +15,13 @@ class song():
         self.time = time
         self.session = session
 
-class Playlist(): #creates a GUI but also can store data
+
+class Playlist():  # creates a GUI but also can store data
     def __init__(self, playlist,user):
         self.master = playlist
         self.user = user
-        self.list = [] #songs are first added to the list, then at the end the entire playlist is written into DB
-        self.length = 0 #stores the current length
+        self.list = []  # songs are first added to the list, then at the end the entire playlist is written into DB
+        self.length = 0  # stores the current length
 
         playlist.title("Add Playlist")
         playlist.geometry("250x275+100+100")
@@ -69,25 +72,25 @@ class Playlist(): #creates a GUI but also can store data
         session_entry = Entry(playlist)
         session_entry.grid(row=8, column=1)
 
-        #adds a song to the playlist list when pressed
+        # adds a song to the playlist list when pressed
         add_button = Button(playlist, text='Add', command = lambda:add_songs())
         add_button.grid(row = 9, column = 0)
 
-        #removes the last added song from the playlist list
+        # removes the last added song from the playlist list
         undo_button = Button(playlist, text='Undo', command = lambda:undo())
         undo_button.grid(row=9, column=1)
 
-        #writes the entire playlist to the database when pressed
+        # writes the entire playlist to the database when pressed
         add_playlist = Button(playlist, text='Add Playlist', command=lambda: add_playlist())
         add_playlist.grid(row=10, column=0, columnspan = 2)
 
-        #shows the user how many songs are currently in the playlist
+        # shows the user how many songs are currently in the playlist
         length = Label(playlist, text = ' Current length 0')
         length.grid(row = 11, column=0)
 
-        def add_songs(): #disables the add song button when the playlist is longer than the user specified
+        def add_songs(): # disables the add song button when the playlist is longer than the user specified
             if int(entry1.get()) == self.length:
-                 add_button['state'] = "disabled"
+                add_button['state'] = "disabled"
             else:
                 title = title_entry.get()
                 artist = artist_entry.get()
@@ -97,40 +100,44 @@ class Playlist(): #creates a GUI but also can store data
                 date = date_entry.get()
                 time = time_entry.get()
                 session = session_entry.get()
-                #retrieves all the entries and creates a song class
+                # retrieves all the entries and creates a song class
                 x = song(title,artist,album,t_length,source,date,time,session)
-                #adds the song to the list and adds one to the length count
+                # adds the song to the list and adds one to the length count
                 self.list.append(x)
                 self.length += 1
-                #updates the length label when a song is added
+                # updates the length label when a song is added
                 length = Label(playlist, text=f'Current length {self.length}')
                 length.grid(row=11, column=0)
         def add_playlist():
-            if self.length == int(entry1.get()): #only runs when the playlist length is the specified length
+            if self.length == int(entry1.get()):  # only runs when the playlist length is the specified length
                 for i in self.list:
                     if i.date == '':
                         i.date = None
-                        #################ADD FORMATTING CHECK############################
-                        #sets the date and time to None is there is no value entered
+                        # sets the date and time to None is there is no value entered
                     if i.time == '':
                         i.time = None
-                    #checks that the song is already in the database
+                    # checks that the song is already in the database
                     x = check_song(f'{i.title}',f'{i.artist}',f'{i.album}')
                     if check_song(f'{i.title}',f'{i.artist}',f'{i.album}') is not None:
                         add_play(x,self.user,i.source,i.date,i.time,i.session)
-                        #adds play if the song is already in database
+                        # adds play if the song is already in database
                         print (i.title)
                         # print (i.title,i.album,i.album,i.source,i.date,i.time,i.session)
-                    else:#adds the songs to the data base which automatically adds the play
+                    else:  # adds the songs to the data base which automatically adds the play
                         add_song(i.title,i.artist,i.album,i.t_length,'',user)
                         x = check_song(f'{i.title}', f'{i.artist}', f'{i.album}')
-                        #appends the source and session after the song is added
-                        #because it is the first instance the song id can also be used to update the play
+                        # appends the source and session after the song is added
+                        # because it is the first instance the song id can also be used to update the play
                         append_play(x,i.source,i.session)
+                self.list = []
+                self.length = 0
+                length = Label(playlist, text=f'Current length {self.length}')
+                length.grid(row=11, column=0)
             else:
-                #displays an error when the length does not match
+                # displays an error when the length does not match
                 messagebox.showerror('Length Error', f'Error:\n Specified length and current length of playlist do not match\n Please add more songs or change specified track length')
                 print ('no')
+
         def undo(): #allows the user to remove songs from the song list
             if self.length >= 1: #only works if there are currently songs in the list
                 del self.list[-1] #removes the last added entry
@@ -153,7 +160,7 @@ class iTunes(): #creates a GUI but also can store data
         Add_iTunes = Button(iTunes, text="Update iTunes", command=lambda: [run_itunes_scrape(self.user), iTunes.destroy()])
         Add_iTunes.grid(row=4, columnspan=2)
 
-        # def run_itunes(uid):
+
 class Song_Update():
     def __init__(self, song, user):
         self.master = song
@@ -190,7 +197,7 @@ class Song_Update():
             print([old,new, album])
             conn = sqlite3.connect('MLDB.db', timeout=5)
             cursorObj = conn.cursor()
-            cursorObj.execute(f"UPDATE Song set Title = '{new}' where Title = '{old}' and album = '{album}'")
+            cursorObj.execute(f"UPDATE Song set Title = :n where Title = :o and album = :a ",{"n":new,"o":old,"a":album})
             session = cursorObj.fetchall()
             conn.commit()
             print (session)
@@ -225,7 +232,7 @@ class Artist_Update():
             print([old,new, user])
             conn = sqlite3.connect('MLDB.db', timeout=5)
             cursorObj = conn.cursor()
-            cursorObj.execute(f"UPDATE Song set Artist = '{new}' where artist = '{old}'")
+            cursorObj.execute(f"UPDATE Song set Artist = :n where artist = :o " , {"n":new,"o":old})
             session = cursorObj.fetchall()
             conn.commit()
             print (session)
@@ -260,7 +267,7 @@ class Album_Update():
             print([old, new, user])
             conn = sqlite3.connect('MLDB.db', timeout=5)
             cursorObj = conn.cursor()
-            cursorObj.execute(f"UPDATE Song set Album = '{new}' where Album = '{old}'")
+            cursorObj.execute(f"UPDATE Song set Album = :n where Album = :o",{"n":new,"o":old})
             session = cursorObj.fetchall()
             conn.commit()
             print(session)
@@ -307,7 +314,7 @@ class Source_Update():
             print([date, start, time_end, source_type])
             conn = sqlite3.connect('MLDB.db', timeout=5)
             cursorObj = conn.cursor()
-            cursorObj.execute(f"UPDATE Plays set Source = '{source_type}' where User = '{user}' and Date = '{date}' and Time BETWEEN '{start}' and '{time_end}'")
+            cursorObj.execute(f"UPDATE Plays set Source =  :t where User = '{user}' and Date = :d and Time BETWEEN :s and :e ",{"t":source_type,'d':date,"s":start,"e":time_end})
             session = cursorObj.fetchall()
             conn.commit()
             print(session)
@@ -355,7 +362,7 @@ class Session_Update():
             conn = sqlite3.connect('MLDB.db', timeout=5)
             cursorObj = conn.cursor()
             cursorObj.execute(
-                f"UPDATE Plays set Session = '{session_type}' where User_ID = {user} and Date = '{date}' and Time BETWEEN '{start}' and '{time_end}'")
+                f"UPDATE Plays set Session = :t where User_ID = {user} and Date = :d and Time BETWEEN :s and :e ",{"t":session_type,'d':date,"s":start,"e":time_end})
             session = cursorObj.fetchall()
             conn.commit()
             print(session)

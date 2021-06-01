@@ -1,11 +1,11 @@
-from tkinter import *
-from Login_Access import *
-from Main_Code import *
+##Run The Program Through Here
 from Stat_Windows import *
 from Update_Windows import *
 from Spotify import *
 from iTunes import *
 from Database import create_database
+
+
 # Code for the login section
 class LoginPage():
     def __init__(self, login):
@@ -15,7 +15,7 @@ class LoginPage():
         login.title("Log In")
         login.geometry("400x200+100+100")
 
-        #Labels for the entry fields
+        #  Labels for the entry fields
         login.namelabel = Label(login, text="Name =")
         login.namelabel.grid(row=0, column=0)
 
@@ -38,25 +38,25 @@ class LoginPage():
         login.pword.grid(row=2, column=1)
         login.pword.insert(2, 'QWERTY1234')
 
-        #Runs the open main window command when pressed
+        #  Runs the open main window command when pressed
         login.LoginButton = Button(login, text="Log In", command=lambda: self.open_main_window(login))
         login.LoginButton.grid(row=3, column=1)
 
-        #Runs the open new User window comman when pressed
+        #  Runs the open new User window comman when pressed
         login.CreateAccount = Button(login, text="Create New Account", command=lambda: self.open_newUser_window(login))
         login.CreateAccount.grid(row=5, column=1)
 
     def open_main_window(self,login):
-        x = login.name.get() #Display name for the session
-        y = login.uname.get()#Username
-        z = login.pword.get()#Password
+        x = login.name.get()   # Display name for the session
+        y = login.uname.get()  # Username
+        z = login.pword.get()  # Password
         if len(checkdata()) < 1:
             label3 = Label(login, text="If you do not have an account \n you can create on below")
             label3.grid(row=3, column=3)
             return 'done'
 
-        #Takes the entered username and password and runs the check_user command from the Login Access code
-        #If there is a match the program opens the main page and stores the username and display name and kills the login page
+        # Takes the entered username and password and runs the check_user command from the Login Access code
+        # If there is a match the program opens the main page and stores the username and display name and kills the login page
         if check_user(y,z) == True:
             label3 = Label(login, text="Logging In \n Please Wait")
             label3.grid(row=2, column=3)
@@ -66,7 +66,7 @@ class LoginPage():
             MainPage(root, x, y)
             login.destroy()
             print(z)
-        #If there is no match an error message is displayed
+        # If there is no match an error message is displayed
         else:
             label3 = Label(login, text="Incorrect Name or Password entered")
             label3.grid(row=2, column=3)
@@ -75,12 +75,12 @@ class LoginPage():
 
 
     def open_newUser_window(self,login):
-        #Opens a window to allow the user to create an account
+        # Opens a window to allow the user to create an account
         New_User = Tk()
         New_User.title("Create New Account")
         New_User.geometry("400x200+100+100")
 
-        #Labels for all the entry fields
+        # Labels for all the entry fields
         f_name = Label(New_User, text="Name =")
         f_name.grid(row=0, column=0)
 
@@ -99,7 +99,7 @@ class LoginPage():
         itunes = Label(New_User, text="iTunes Details =")
         itunes.grid(row=5, column=0)
 
-        #Entry Field codes
+        # Entry Field codes
         f_name_entry = Entry(New_User)
         f_name_entry.grid(row=0, column=1)
         f_name_entry.insert(0, 'Firstname(s)')
@@ -124,22 +124,22 @@ class LoginPage():
         itunes_entry.grid(row=5, column=1)
         itunes_entry.insert(5, 'iTunes')
 
-        def createuser(): #function for the create user button
+        def createuser(): # function for the create user button
             fname = f_name_entry.get()
             lname = s_name_entry.get()
             uname = u_name_entry.get()
             pword = pword_entry.get()
             spotify = spotify_entry.get()
             itunes = itunes_entry.get()
-            for user in checkdata(): #runs the check user command in Login_Access to ensure username is unique
+            for user in checkdata(): # runs the check user command in Login_Access to ensure username is unique
                 if uname in user:
                     label6 = Label(New_User, text="Username already in user \n please enter a unique username")
                     label6.grid(row=3, column=3)
                     return
-            #creates a user with all the data gathered from the filled in forms
+            # creates a user with all the data gathered from the filled in forms
             adduser(fname,lname,uname,pword,spotify,itunes)
             New_User.destroy()
-        #button that executes the create user command
+        # button that executes the create user command
         CreateAccount = Button(New_User, text="Create New Account", command=lambda: createuser())
         CreateAccount.grid(row=7, column=1)
 
@@ -156,7 +156,7 @@ class MainPage():
         main.geometry("400x300+100+100")
 
 
-        #Headings Code ADD TEXT FORMATTING
+        # Headings Code
         main.label = Label(main, text='Music Listening Database')
         main.label.grid(row=1, column=1, columnspan = 5, pady=(5,5))
 
@@ -170,28 +170,28 @@ class MainPage():
         main.total_songs.grid(row = 3, column = 5,sticky='w')
 
 
-        #Interactions Code
-        #Songs Interactions
+        # Interactions Code
+        # Songs Interactions
         main.songs = Label(main, text='Songs')
         main.songs.grid(row=4, column=1,sticky='w', pady=(5,5))
 
-        Music_Stats = Button(main, text="Stats", command = lambda:self.open_stats_window('music'))
+        Music_Stats = Button(main, text="Stats", command=lambda: self.open_stats_window('music'))
         Music_Stats.grid(row=4, column=2,pady=(5,5))
 
         Music_Update = Button(main, text="Update", command=lambda: self.open_update_window('song'))
         Music_Update.grid(row=4, column=3,pady=(5,5))
 
-        #Artist Interactions
+        # Artist Interactions
         main.artist = Label(main, text='Artist')
         main.artist.grid(row=5, column=1, sticky='w', pady=(5,5))
 
-        Artist_Stats = Button(main, text="Stats", command = lambda:self.open_stats_window('artist'))
+        Artist_Stats = Button(main, text="Stats", command=lambda :self.open_stats_window('artist'))
         Artist_Stats.grid(row=5, column=2)
 
         Artist_Update = Button(main, text="Update", command=lambda: self.open_update_window('artist'))
         Artist_Update.grid(row=5, column=3)
 
-        #Album interactions
+        # Album interactions
         main.album = Label(main, text='Album')
         main.album.grid(row=6, column=1, sticky='w',pady=(5,5))
 
@@ -201,7 +201,7 @@ class MainPage():
         Album_Update = Button(main, text="Update", command=lambda: self.open_update_window('album'))
         Album_Update.grid(row=6, column=3)
 
-        #Source (Spotify, itunes, other) interactions
+        # Source (Spotify, itunes, other) interactions
         main.source = Label(main, text='Source')
         main.source.grid(row=7, column=1, sticky='w',pady=(5,5))
 
@@ -211,7 +211,7 @@ class MainPage():
         Source_Update = Button(main, text="Update", command=lambda: self.open_update_window('source'))
         Source_Update.grid(row=7, column=3)
 
-        #Session (Study, Party, Relaxing etc) Code
+        # Session (Study, Party, Relaxing etc) Code
         main.session = Label(main, text='Session')
         main.session.grid(row=8, column=1, sticky='w',pady=(5,5))
 
@@ -251,18 +251,10 @@ class MainPage():
             root = Tk()
             Album_Stats_Window(root, album, artist, song)
         if type == 'source':
-            source_details = (source_stats(self.user_id))
-            source = source_details[0]
-            song = source_details[1]
-            root = Tk()
-            Source_Details(root,source,song)
-        if type == 'session':
-            session_details = (session_stats(self.user_id))
-            session = session_details[0]
-            song = session_details[1]
-            root = Tk()
-            Session_Details(root, session, song)
+            (choice_box(self.user_id,'source'))
 
+        if type == 'session':
+            (choice_box(self.user_id,'session'))
 
     def open_update_window(self, type):
         if type == 'playlist':
@@ -291,8 +283,7 @@ class MainPage():
 try:
     create_database()
     print ("Created")
-except:
-    sqlite3.OperationalError
+except sqlite3.OperationalError:
     print("Already Exists")
 
 root = Tk()

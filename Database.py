@@ -1,3 +1,4 @@
+##Run The Program Through The Interface File
 import sqlite3
 
 def create_database():
@@ -12,14 +13,14 @@ def create_database():
                       Spotify_Last_Update text,
                       iTunes text,
                       iTunes_Last_Update text)""")
-    # conn.commit()
+
     cursorObj.execute("""CREATE TABLE Song(id integer PRIMARY KEY,
                       Title text,
                       Artist text,
                       Album text,
                       Length text,
                       Genre text)""")
-    # conn.commit()
+
     cursorObj.execute("""CREATE TABLE Plays(id integer PRIMARY KEY,
                       Song integer,
                       Source text,
