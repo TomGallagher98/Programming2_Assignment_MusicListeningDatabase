@@ -314,7 +314,7 @@ class Source_Update():
             print([date, start, time_end, source_type])
             conn = sqlite3.connect('MLDB.db', timeout=5)
             cursorObj = conn.cursor()
-            cursorObj.execute(f"UPDATE Plays set Source =  :t where User = '{user}' and Date = :d and Time BETWEEN :s and :e ",{"t":source_type,'d':date,"s":start,"e":time_end})
+            cursorObj.execute(f"UPDATE Plays set Source =  :t where User_ID = '{user}' and Date = :d and Time BETWEEN :s and :e ",{"t":source_type,'d':date,"s":start,"e":time_end})
             session = cursorObj.fetchall()
             conn.commit()
             print(session)
