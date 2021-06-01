@@ -10,7 +10,7 @@ class Song_Stat_Window():
         self.artist = artist
 
         stats.title("Song Stats")
-        stats.geometry("200x200+100+100")
+        stats.geometry("300x150+100+100")
 
         label = Label(stats, text = 'Song Statistics')
         label.grid(row = 0, pady=10)
@@ -33,8 +33,8 @@ class Artist_Stats_Window():
         self.times = times
         self.song = song
 
-        stats.title = 'Artist Stats'
-        stats.geometry("300x200+100+100")
+        stats.title('Artist Stats')
+        stats.geometry("350x200+100+100")
 
         label = Label(stats, text='Artist Statistics')
         label.grid(row=0, pady=10)

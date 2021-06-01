@@ -28,15 +28,15 @@ class LoginPage():
         #Login entry fields
         login.name = Entry(login)
         login.name.grid(row=0, column=1)
-        login.name.insert(0, 'Tom Gallagher')
+        login.name.insert(0, 'Display Name')
 
         login.uname = Entry(login)
         login.uname.grid(row=1, column=1)
-        login.uname.insert(1, 'Tom1998')
+        login.uname.insert(1, 'Username')
 
         login.pword = Entry(login)
         login.pword.grid(row=2, column=1)
-        login.pword.insert(2, 'QWERTY1234')
+        login.pword.insert(2, 'Password')
 
         #  Runs the open main window command when pressed
         login.LoginButton = Button(login, text="Log In", command=lambda: self.open_main_window(login))
