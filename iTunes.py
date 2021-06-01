@@ -3,6 +3,10 @@ from Main_Code import add_song
 import sqlite3
 from datetime import datetime
 
+    #In the assignment I have included 2 files so that the update itunes function can be viewed
+    #'Music.txt' is the old file, 'MusicNew.txt' is the updated
+    #first import the Old file, then the updated.
+    #This might require changing the iTunes_Last_Update value in the actual database
 def run_itunes_scrape(user):
     uid = user
     iTunes_music = []
