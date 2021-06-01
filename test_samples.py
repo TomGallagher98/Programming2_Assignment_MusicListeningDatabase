@@ -2,6 +2,8 @@ from datetime import datetime
 from dateutil import tz
 import sqlite3
 
+#I could not test all functions because some were nested within others
+#So I created this file with snippets which I wanted to test
 
 ###SPOTIFY SAMPLES####
 def Duration_MS_to_MINSECS(ms):  # converts the track length from milliseconds to mm:ss format
