@@ -4,6 +4,7 @@ from tkinter import messagebox
 from iTunes import *
 
 
+#All code for the update windows, including add playlist function and update spotify function
 class song():
     def __init__(self,title, artist, album,t_length,source,date,time,session):
         self.title = title
@@ -146,7 +147,7 @@ class Playlist():  # creates a GUI but also can store data
                 length.grid(row=11, column=0)
                 add_button['state'] = "active" #activates the add button if it was previously disabled
 
-class iTunes(): #creates a GUI but also can store data
+class iTunes(): #creates a new interface to run the itunes code
     def __init__(self,iTunes, user):
         self.master = iTunes
         self.user = user
@@ -156,12 +157,12 @@ class iTunes(): #creates a GUI but also can store data
 
         label1 = Label(iTunes, text='Update Song List from iTunes')
         label1.grid(row=1, column=1)
-
+        #when pressed updates the users itunes from the itunes file
         Add_iTunes = Button(iTunes, text="Update iTunes", command=lambda: [run_itunes_scrape(self.user), iTunes.destroy()])
         Add_iTunes.grid(row=4, columnspan=2)
 
 
-class Song_Update():
+class Song_Update():  #allows the user to update song titles
     def __init__(self, song, user):
         self.master = song
         self.user = user
@@ -190,6 +191,7 @@ class Song_Update():
         Write = Button(song, text="Update Song Title", command=lambda: write_updates(self.user))
         Write.grid(row=5, columnspan=2)
 
+        # commits the changes
         def write_updates(user):
             old = Old_entry.get()
             new = New_entry.get()
@@ -202,7 +204,7 @@ class Song_Update():
             conn.commit()
             print (session)
 
-class Artist_Update():
+class Artist_Update():  #allows the user to update artist names
     def __init__(self, artist, user):
         self.master = artist
         self.user = user
@@ -226,6 +228,7 @@ class Artist_Update():
         Write = Button(artist, text="Update Artist Name", command=lambda: write_updates(self.user))
         Write.grid(row=4, columnspan=2)
 
+        # commits the changes
         def write_updates(user):
             old = Old_entry.get()
             new = New_entry.get()
@@ -237,7 +240,7 @@ class Artist_Update():
             conn.commit()
             print (session)
 
-class Album_Update():
+class Album_Update(): # allows the user to update an album title
     def __init__(self, album, user):
         self.master = album
         self.user = user
@@ -261,6 +264,7 @@ class Album_Update():
         Write = Button(album, text="Update Album Name", command=lambda: write_updates(self.user))
         Write.grid(row=4, columnspan=2)
 
+        # commits the changes
         def write_updates(user):
             old = Old_entry.get()
             new = New_entry.get()
@@ -272,7 +276,8 @@ class Album_Update():
             conn.commit()
             print(session)
 
-class Source_Update():
+
+class Source_Update():  # the user can add update a soure they were using between certain times on a specific day
     def __init__(self, source, user):
         self.master = source
         self.user = user
@@ -306,6 +311,7 @@ class Source_Update():
         Write = Button(source, text="Update Source", command=lambda: write_updates(self.user))
         Write.grid(row=6, columnspan=2)
 
+        # commits the changes
         def write_updates(user):
             source_type = source_type_entry.get()
             date = date_entry.get()
@@ -314,12 +320,13 @@ class Source_Update():
             print([date, start, time_end, source_type])
             conn = sqlite3.connect('MLDB.db', timeout=5)
             cursorObj = conn.cursor()
-            cursorObj.execute(f"UPDATE Plays set Source =  :t where User_ID = '{user}' and Date = :d and Time BETWEEN :s and :e ",{"t":source_type,'d':date,"s":start,"e":time_end})
+            cursorObj.execute(f"UPDATE Plays set Source =  :t where User_id = {user} and Date = :d and Time BETWEEN :s and :e ",{"t":source_type,'d':date,"s":start,"e":time_end})
             session = cursorObj.fetchall()
             conn.commit()
             print(session)
 
-class Session_Update():
+
+class Session_Update():  # the user can add a session between certain times on a specific day
     def __init__(self, session, user):
         self.master = session
         self.user = user
@@ -353,6 +360,7 @@ class Session_Update():
         Write = Button(session, text="Add Session", command=lambda: write_updates(self.user))
         Write.grid(row=6, columnspan=2)
 
+        # commits the changes
         def write_updates(user):
             session_type = session_type_entry.get()
             date = date_entry.get()
